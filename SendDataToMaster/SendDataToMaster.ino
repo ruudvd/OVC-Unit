@@ -1,7 +1,8 @@
 #include <Wire.h>  
 #define SLAVE_ADDRESS 0x40   // Define the i2c address
-char getal[5] = "985";
 
+int number = 947;
+  
 void setup()
 {
   Serial.begin(9600);
@@ -13,12 +14,15 @@ void loop()
 {
   // READ DATA
   Wire.onRequest(sendData);
-  Serial.println(getal);
+  Serial.println(number);
   delay(250);
 }
 
 void sendData()
 {
-  Wire.write(getal); 
+  String datastring = String(number);
+  char data[5] = "2000";
+  datastring.toCharArray(data, datastring.length()+1);
+  Wire.write(data); 
 }
 
