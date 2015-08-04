@@ -53,14 +53,14 @@ void receiveData(int byteCount)
     ReceivedData = Wire.read();  // Read the incomming character
     TextMessage += ReceivedData;  // Add the character to the characters you got earlier (construct a string).
   }
-  Serial.println(TextMessage);  // Print the received text message
+  Serial.println("Received from I2C: " + TextMessage);  // Print the received text message
 
   if (TextMessage.startsWith("RF:")) { //Command send via RF
     TextMessage.replace("RF:", "");
-    Serial.println("I2C message: " + TextMessage);  // Print the received text message
+    Serial.println("RF message: " + TextMessage);  // Print the received text message
 
     long rawMessage = TextMessage.toInt();
-    Serial.println("I2C converted message: " + rawMessage);  // Print the received text message
+    Serial.println("RF converted message: " + rawMessage);  // Print the received text message
     sendViaRf(rawMessage);
   }
   TextMessage = "";  // Reset the text message
