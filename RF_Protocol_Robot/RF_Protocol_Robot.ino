@@ -18,6 +18,14 @@ int OUT_Value2 = 0;
 int OUT_Value3 = 0;
 int OUT_Checksum = 0;
 
+#define ENL 3 //analog PWM port Left
+#define MotorL4 4 //digital port IN1
+#define MotorL5 5 //digital port IN2
+//RIGHT motor
+#define ENR 8 //analog PWM port Right
+#define MotorR6 6 //digital port IN3
+#define MotorR7 7 //digital port IN4
+
 long IN_Raw_Value;
 
 char Message[8];
@@ -27,6 +35,20 @@ RCSwitch mySwitch = RCSwitch();
 void setup (){
   Serial.begin(9600);
   mySwitch.enableReceive(0);
+
+  pinMode (ENL, OUTPUT);
+  pinMode (MotorL4, OUTPUT);
+  pinMode (MotorL5, OUTPUT);
+  pinMode (ENR, OUTPUT);
+  pinMode (MotorR6, OUTPUT);
+  pinMode (MotorR7, OUTPUT);
+
+  digitalWrite(ENL, 0); 
+  digitalWrite(ENR, 0); 
+  digitalWrite(MotorL4, LOW); 
+  digitalWrite(MotorL5, LOW);
+  digitalWrite(MotorR6, LOW);
+  digitalWrite(MotorR7, LOW);
 }
 
 void loop(){
@@ -40,11 +62,58 @@ void loop(){
       Serial.print("Message ");
       Serial.print(Message);
       Serial.println(" = valid.");
-    }  
+      Serial.println(IN_Value1);
+
+      switch (IN_Value1)  {      
+
+      case 0: //drive forward
+
+        Serial.println("ik zit in case 0");
+        digitalWrite(ENL, 200); 
+        digitalWrite(ENR, 200); 
+        digitalWrite(MotorL4, HIGH); 
+        digitalWrite(MotorL5, LOW);
+        digitalWrite(MotorR6, HIGH);
+        digitalWrite(MotorR7, LOW);
+
+        delay(3000);
+
+        digitalWrite(ENL, 0); 
+        digitalWrite(ENR, 0); 
+        digitalWrite(MotorL4, LOW); 
+        digitalWrite(MotorL5, LOW);
+        digitalWrite(MotorR6, LOW);
+        digitalWrite(MotorR7, LOW);
+        break;
+
+      case 1: //drive reverse
+
+        Serial.println("ik zit in case 1");
+        digitalWrite(ENL, 200); 
+        digitalWrite(ENR, 200); 
+        digitalWrite(MotorL4, LOW); 
+        digitalWrite(MotorL5, HIGH);
+        digitalWrite(MotorR6, LOW);
+        digitalWrite(MotorR7, HIGH);
+
+        delay(3000);
+
+        digitalWrite(ENL, 0); 
+        digitalWrite(ENR, 0); 
+        digitalWrite(MotorL4, LOW); 
+        digitalWrite(MotorL5, LOW);
+        digitalWrite(MotorR6, LOW);
+        digitalWrite(MotorR7, LOW);
+
+        break;
+      }
+
+    }
+
     else {
-      Serial.println("Message ");
-      Serial.println(Message);
-      Serial.println(" = invaled.");
+      Serial.print("Message ");
+      Serial.print(Message);
+      Serial.println(" = invaled. ohneeohneeohnee :'( ");
       resetMessage();
     }
     mySwitch.resetAvailable();
@@ -53,7 +122,6 @@ void loop(){
 
 int calculateChecksum(int ReceiverID,int SenderID,int MessageID,int Value1,int Value2,int Value3) {
   int sum = (ReceiverID + SenderID + MessageID + Value1 + Value2 + Value3);
-  Serial.println(sum);
   int modulo = (sum % 8);
   return modulo;
 }
@@ -81,6 +149,11 @@ void resetMessage(){
   IN_Raw_Value = 00000000;
   readMessage();
 }
+
+
+
+
+
 
 
 
