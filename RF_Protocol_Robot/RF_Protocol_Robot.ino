@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+const int drivingSpeed = 150;
+const int turningTime = 50;
+const int drivingTime = 250;
+
+boolean debug = true;
+
 int IN_ReceiverID = 0;
 int IN_SenderID = 0;
 int IN_MessageID = 0;
@@ -43,12 +49,7 @@ void setup (){
   pinMode (MotorR6, OUTPUT);
   pinMode (MotorR7, OUTPUT);
 
-  digitalWrite(ENL, 0); 
-  digitalWrite(ENR, 0); 
-  digitalWrite(MotorL4, LOW); 
-  digitalWrite(MotorL5, LOW);
-  digitalWrite(MotorR6, LOW);
-  digitalWrite(MotorR7, LOW);
+  stopDriving();
 }
 
 void loop(){
@@ -62,58 +63,38 @@ void loop(){
       Serial.print("Message ");
       Serial.print(Message);
       Serial.println(" = valid.");
-      Serial.println(IN_Value1);
+
+      //Enter Switch Case 4
+      logMessage("MessageID: Drive");
 
       switch (IN_Value1)  {      
 
       case 0: //drive forward
-
-        Serial.println("ik zit in case 0");
-        digitalWrite(ENL, 200); 
-        digitalWrite(ENR, 200); 
-        digitalWrite(MotorL4, HIGH); 
-        digitalWrite(MotorL5, LOW);
-        digitalWrite(MotorR6, HIGH);
-        digitalWrite(MotorR7, LOW);
-
-        delay(3000);
-
-        digitalWrite(ENL, 0); 
-        digitalWrite(ENR, 0); 
-        digitalWrite(MotorL4, LOW); 
-        digitalWrite(MotorL5, LOW);
-        digitalWrite(MotorR6, LOW);
-        digitalWrite(MotorR7, LOW);
+        logMessage("Value1: Forward");
+        driveForTime(HIGH, LOW, HIGH, LOW);
         break;
 
       case 1: //drive reverse
+        logMessage("Value1: Reverse");
+        driveForTime(LOW, HIGH, LOW, HIGH);
+        break;
 
-        Serial.println("ik zit in case 1");
-        digitalWrite(ENL, 200); 
-        digitalWrite(ENR, 200); 
-        digitalWrite(MotorL4, LOW); 
-        digitalWrite(MotorL5, HIGH);
-        digitalWrite(MotorR6, LOW);
-        digitalWrite(MotorR7, HIGH);
+      case 2: //drive right
+        logMessage("Value1: Right");
+        driveForTime(LOW, LOW, LOW, HIGH,turningTime,turningTime);
+        break;
 
-        delay(3000);
-
-        digitalWrite(ENL, 0); 
-        digitalWrite(ENR, 0); 
-        digitalWrite(MotorL4, LOW); 
-        digitalWrite(MotorL5, LOW);
-        digitalWrite(MotorR6, LOW);
-        digitalWrite(MotorR7, LOW);
-
+      case 3: //drive left
+        logMessage("Value1: Left");     
+        driveForTime(LOW, HIGH, LOW, LOW,turningTime,turningTime);
         break;
       }
 
     }
 
     else {
-      Serial.print("Message ");
-      Serial.print(Message);
-      Serial.println(" = invaled. ohneeohneeohnee :'( ");
+
+      logMessage("Message is valid");
       resetMessage();
     }
     mySwitch.resetAvailable();
@@ -150,10 +131,55 @@ void resetMessage(){
   readMessage();
 }
 
+void driveForTime(int ml4, int ml5, int mr6, int mr7){
+  driveForTime(ml4, ml5, mr6, mr7, drivingTime);
+}
 
+void driveForTime(int ml4, int ml5, int mr6, int mr7, int delayTime){
+  driveForTime(ml4, ml5, mr6, mr7, drivingSpeed, drivingSpeed, delayTime);
+}
 
+void driveForTime(int ml4, int ml5, int mr6, int mr7, int speedL, int speedR){
+  driveForTime(ml4, ml5, mr6, mr7, speedL, speedR);
+}
 
+void driveForTime(int ml4, int ml5, int mr6, int mr7, int speedL, int speedR, int delayTime){
+  drive(ml4, ml5, mr6, mr7, speedL, speedR);
+  delay(delayTime);
+  stopDriving();
+}
 
+void drive(int ml4, int ml5, int mr6, int mr7){
+  drive(ml4, ml5, mr6, mr7, 200, 200);
+}
 
+/**
+ * Sets motor states according to parameter values
+ * @param ml4 moter left first port state
+ * @param ml4 moter left second port state
+ * @param ml4 moter right first port state
+ * @param ml4 moter right second port state
+ */
+void drive(int ml4, int ml5, int mr6, int mr7, int speedL, int speedR){
+  digitalWrite(ENL, speedL); 
+  digitalWrite(ENR, speedR); 
+  digitalWrite(MotorL4, ml4); 
+  digitalWrite(MotorL5, ml5);
+  digitalWrite(MotorR6, mr6);
+  digitalWrite(MotorR7, mr7);
+}
+
+/**
+ * Stops the motors
+ */
+void stopDriving(){
+  drive(LOW, LOW,LOW,LOW, 0, 0); 
+}
+
+void logMessage(String message){
+  if (debug){
+    Serial.println(message);
+  }
+}
 
 
