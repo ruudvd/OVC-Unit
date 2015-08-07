@@ -4,11 +4,11 @@
 #define SLAVE_ADDRESS 0x40   // This is the address needed for I2C communication
 #define voltPort = A1  // This defines the port which reads the voltage level
 int voltVar = 0;  // This variable stores the voltage level
-  
+
 void setup()
 {
   Serial.begin(9600);  // OPTIONAL: This starts a serial communication. Start the serial monitor to see what the program does
- 
+
   Wire.begin(SLAVE_ADDRESS);  // Start communication on the defined address
 }
 
@@ -17,25 +17,42 @@ void loop()
   // First we read an analog value. The input is between 0 V and 5 V.
   // The arduino can read 1024 values from 0 to 1023 where 0 V = 0 and 5 V = 1023.
   voltVar = analogRead(voltPort);  // Read the analog port and write it to a variable
-  
+
   Serial.print("Measered voltage = ");  // SERIAL MONITOR: Print the speed
   Serial.print(voltVar);
-  
+
   Wire.onRequest(sendData);  // Start the void on the bottom of page
-  
+  Wire.OnReceive(receiveData);  // Start the void on the bottom of page
+
   delay(250);  // A delay of 250ms, the result is that data is sended about 4 times a second
 }
 
-void sendData()  
+void sendData()
 {
+  Serial.println("REQUESTED"); // Inform user that data is sent.
   // On I2C you can only send data as a 'char array'. The analogread stores data as an integer.
   // First thing to do is to convert the integer into a char array.
-  // For more information about data types check the link and search for Data Types https://www.arduino.cc/en/Reference/HomePage 
+  // For more information about data types check the link and search for Data Types https://www.arduino.cc/en/Reference/HomePage
   String datastring = String(voltVar);  // Convert the integer voltage to a string and save it in a variable
-  
+
   // The largest number we want to send is 1023 (4 numbers).
   char data[5] = "9999";  // Make a char array of length 5. You can store 4 numbers and need a 5th place for a 'null-terminate'. This marks the end of an array.
-  datastring.toCharArray(data, datastring.length()+1);  // Convert the datastring to a char array. The length is our data, added by 1 (for the null-terminate).
-  Wire.write(data);  // Write the data over I2C 
-  Serial.println("  =>  Voltage is sent"); // Inform user that data is sent. 
+  datastring.toCharArray(data, datastring.length() + 1); // Convert the datastring to a char array. The length is our data, added by 1 (for the null-terminate).
+  Wire.write(data);  // Write the data over I2C
+  Serial.println("  =>  Voltage is sent"); // Inform user that data is sent.
+}
+
+
+void receiveData()
+{
+  Serial.println("RECEIVED"); // Inform user that data is sent.
+  
+   // On I2C you can only send data as a 'char'. We receive one character at a time so we have to concatenate them.
+  while (Wire.available()) // As long as there is information comming, do:
+  {
+    ReceivedData = Wire.read();  // Read the incomming character
+    TextMessage += ReceivedData;  // Add the character to the characters you got earlier (construct a string).
+  }
+  Serial.println(TextMessage);  // Print the received text message
+  TextMessage = "";  // Reset the text message
 }
